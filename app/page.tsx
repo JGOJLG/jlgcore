@@ -1,53 +1,266 @@
-const links = [
+"use client";
+
+import { FormEvent, useEffect, useMemo, useState } from "react";
+
+type Category = {
+  id: string;
+  name: string;
+  label: string;
+  url?: string;
+  displayUrl?: string;
+  className: string;
+  featured?: boolean;
+};
+
+type Task = {
+  id: string;
+  categoryId: string;
+  text: string;
+  completed: boolean;
+};
+
+const categories: Category[] = [
   {
+    id: "jgo-hire",
     name: "JGO Hire",
     label: "Career Coaching",
     url: "https://jgohire.com",
+    displayUrl: "jgohire.com",
     className: "bg-[#dce7df] border-[#c6d5ca]",
+    featured: true,
   },
   {
+    id: "jlg-collective",
     name: "JLG Collective",
     label: "Creative Collective",
     url: "https://jlgcollective.com",
+    displayUrl: "jlgcollective.com",
     className: "bg-[#f0dfd2] border-[#e1cbbb]",
   },
   {
+    id: "vidley",
     name: "Vidley Digital",
     label: "Digital Studio",
     url: "https://vidleydigital.com",
+    displayUrl: "vidleydigital.com",
     className: "bg-[#dce8ea] border-[#c7d9dc]",
   },
   {
+    id: "laif",
     name: "LAIF",
     label: "Personal OS",
     url: "https://laif.jlgcore.com",
+    displayUrl: "laif.jlgcore.com",
     className: "bg-[#eee8cf] border-[#ddd5b7]",
   },
   {
-    name: "JGO Hire Admin",
-    label: "Business Portal",
-    url: "https://admin.jgohire.com",
+    id: "jlg-core",
+    name: "JLG Core",
+    label: "Central Hub",
+    url: "https://jlgcore.com",
+    displayUrl: "jlgcore.com",
     className: "bg-[#e5dfee] border-[#d5cce2]",
   },
   {
-    name: "JTHC Admin",
-    label: "Content Management",
+    id: "jthc",
+    name: "JTHC",
+    label: "Health + Wellness",
     url: "https://admin.jillthehealthcoach.com",
+    displayUrl: "admin.jillthehealthcoach.com",
     className: "bg-[#f1dfe0] border-[#e2c9cb]",
   },
   {
-    name: "Jill the Health Coach",
-    label: "Health + Wellness",
-    url: "https://new.jillthehealthcoach.com",
-    className: "bg-[#dfe8d8] border-[#ccd9c2]",
+    id: "jlg-creative",
+    name: "JLG Creative",
+    label: "Creative Studio",
+    className: "bg-[#eadfd7] border-[#dbc9bd]",
+  },
+  {
+    id: "devices",
+    name: "Devices",
+    label: "Technology",
+    className: "bg-[#e1e8e8] border-[#cbd7d7]",
   },
 ];
 
+const starterTasks: Task[] = [
+  {
+    id: "task-1",
+    categoryId: "jgo-hire",
+    text: "Finish the JGO Hire client timeline",
+    completed: false,
+  },
+  {
+    id: "task-2",
+    categoryId: "jgo-hire",
+    text: "Add Leads to the main dashboard navigation",
+    completed: false,
+  },
+  {
+    id: "task-3",
+    categoryId: "jthc",
+    text: "Redesign the public Articles page",
+    completed: false,
+  },
+  {
+    id: "task-4",
+    categoryId: "jthc",
+    text: "Finish the shared Media Library",
+    completed: false,
+  },
+  {
+    id: "task-5",
+    categoryId: "jthc",
+    text: "Build the Document Library",
+    completed: false,
+  },
+  {
+    id: "task-6",
+    categoryId: "laif",
+    text: "Continue building out the Money section",
+    completed: false,
+  },
+  {
+    id: "task-7",
+    categoryId: "devices",
+    text: "List every laptop, phone, tablet, and monitor",
+    completed: false,
+  },
+  {
+    id: "task-8",
+    categoryId: "devices",
+    text: "Document which projects are on each device",
+    completed: false,
+  },
+  {
+    id: "task-9",
+    categoryId: "jlg-core",
+    text: "Build the JLG Core master dashboard",
+    completed: false,
+  },
+];
+
+const STORAGE_KEY = "jlg-core-tasks";
+
 export default function Home() {
+  const [tasks, setTasks] = useState<Task[]>(starterTasks);
+  const [newTasks, setNewTasks] = useState<Record<string, string>>({});
+  const [masterTask, setMasterTask] = useState("");
+  const [showCompleted, setShowCompleted] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  useEffect(() => {
+    const savedTasks = window.localStorage.getItem(STORAGE_KEY);
+
+    if (savedTasks) {
+      try {
+        setTasks(JSON.parse(savedTasks) as Task[]);
+      } catch {
+        setTasks(starterTasks);
+      }
+    }
+
+    setHasLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hasLoaded) return;
+
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  }, [tasks, hasLoaded]);
+
+  const visibleMasterTasks = useMemo(() => {
+    return tasks.filter((task) => showCompleted || !task.completed);
+  }, [tasks, showCompleted]);
+
+  const openTaskCount = tasks.filter((task) => !task.completed).length;
+  const completedTaskCount = tasks.filter((task) => task.completed).length;
+
+  function addCategoryTask(
+    event: FormEvent<HTMLFormElement>,
+    categoryId: string,
+  ) {
+    event.preventDefault();
+
+    const taskText = newTasks[categoryId]?.trim();
+
+    if (!taskText) return;
+
+    const task: Task = {
+      id: crypto.randomUUID(),
+      categoryId,
+      text: taskText,
+      completed: false,
+    };
+
+    setTasks((currentTasks) => [task, ...currentTasks]);
+
+    setNewTasks((currentValues) => ({
+      ...currentValues,
+      [categoryId]: "",
+    }));
+  }
+
+  function addMasterTask(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const taskText = masterTask.trim();
+
+    if (!taskText) return;
+
+    const task: Task = {
+      id: crypto.randomUUID(),
+      categoryId: "to-do",
+      text: taskText,
+      completed: false,
+    };
+
+    setTasks((currentTasks) => [task, ...currentTasks]);
+    setMasterTask("");
+  }
+
+  function toggleTask(taskId: string) {
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              completed: !task.completed,
+            }
+          : task,
+      ),
+    );
+  }
+
+  function deleteTask(taskId: string) {
+    setTasks((currentTasks) =>
+      currentTasks.filter((task) => task.id !== taskId),
+    );
+  }
+
+  function clearCompletedTasks() {
+    setTasks((currentTasks) =>
+      currentTasks.filter((task) => !task.completed),
+    );
+  }
+
+  function getCategoryTasks(categoryId: string) {
+    return tasks.filter((task) => task.categoryId === categoryId);
+  }
+
+  function getCategoryName(categoryId: string) {
+    if (categoryId === "to-do") return "General";
+
+    return (
+      categories.find((category) => category.id === categoryId)?.name ??
+      "Other"
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[#f5f1e9] px-4 py-4 text-[#26322c] sm:px-6 sm:py-5">
-      <div className="mx-auto flex min-h-[calc(100vh-40px)] max-w-[1500px] flex-col gap-4">
-        <header className="relative overflow-hidden rounded-[30px] border border-[#ded6c8] bg-[#fbf8f2] px-7 py-7 sm:px-10">
+      <div className="mx-auto max-w-[1500px]">
+        <header className="relative mb-4 overflow-hidden rounded-[30px] border border-[#ded6c8] bg-[#fbf8f2] px-7 py-7 sm:px-10">
           <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#d8e4dc] blur-3xl" />
           <div className="absolute bottom-[-90px] left-[35%] h-48 w-64 rounded-full bg-[#ead9c9] blur-3xl" />
 
@@ -62,65 +275,352 @@ export default function Home() {
               </h1>
             </div>
 
-            <p className="max-w-md text-sm leading-6 text-[#6d7771] sm:text-right">
-              One home for every business, platform, project, and idea in the
-              JLG ecosystem.
-            </p>
+            <div className="max-w-md sm:text-right">
+              <p className="text-sm leading-6 text-[#6d7771]">
+                One home for every business, platform, project, and idea in the
+                JLG ecosystem.
+              </p>
+
+              <div className="mt-3 flex flex-wrap gap-2 sm:justify-end">
+                <span className="rounded-full border border-[#d8d1c5] bg-white/45 px-3 py-1.5 text-xs text-[#66716b]">
+                  {openTaskCount} open
+                </span>
+
+                <span className="rounded-full border border-[#d8d1c5] bg-white/45 px-3 py-1.5 text-xs text-[#66716b]">
+                  {completedTaskCount} completed
+                </span>
+              </div>
+            </div>
           </div>
         </header>
 
-        <section className="grid flex-1 auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {links.map((link, index) => (
-            <a
-              key={link.name}
-              href={link.url}
-              target="_blank"
-              rel="noreferrer"
-              className={`group relative flex min-h-[145px] flex-col justify-between overflow-hidden rounded-[26px] border p-5 transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(64,72,66,0.12)] sm:min-h-0 ${
-                link.className
-              } ${index === 0 ? "lg:col-span-2" : ""}`}
-            >
-              <div className="flex items-start justify-between">
-                <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-[#66736c]">
-                  {link.label}
+        <section className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {categories.map((category) => (
+            <ProjectCard
+              key={category.id}
+              category={category}
+              tasks={getCategoryTasks(category.id)}
+              newTask={newTasks[category.id] ?? ""}
+              onNewTaskChange={(value) =>
+                setNewTasks((currentValues) => ({
+                  ...currentValues,
+                  [category.id]: value,
+                }))
+              }
+              onAddTask={(event) =>
+                addCategoryTask(event, category.id)
+              }
+              onToggleTask={toggleTask}
+              onDeleteTask={deleteTask}
+            />
+          ))}
+        </section>
+
+        <section className="mt-4 overflow-hidden rounded-[30px] border border-[#d7d0c5] bg-[#ece7df]">
+          <div className="border-b border-black/10 px-5 py-6 sm:px-8 sm:py-8">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#7c827d]">
+                  Master List
                 </p>
 
-                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#506058]/25 bg-white/30 text-base transition duration-300 group-hover:rotate-45 group-hover:bg-[#26322c] group-hover:text-white">
-                  ↗
-                </span>
-              </div>
-
-              <div>
-                <h2
-                  className={`font-medium leading-none tracking-[-0.045em] ${
-                    index === 0
-                      ? "text-4xl sm:text-5xl"
-                      : "text-3xl sm:text-[2rem]"
-                  }`}
-                >
-                  {link.name}
+                <h2 className="mt-2 text-4xl font-medium tracking-[-0.05em] sm:text-5xl">
+                  To Do
                 </h2>
 
-                <p className="mt-3 text-xs text-[#68736d]">
-                  {link.url.replace("https://", "")}
+                <p className="mt-3 max-w-xl text-sm leading-6 text-[#68736d]">
+                  Every task added to a project above automatically appears
+                  here.
                 </p>
               </div>
-            </a>
-          ))}
 
-          <div className="flex min-h-[120px] flex-col justify-between rounded-[26px] border border-[#d7d0c5] bg-[#ece7df] p-5 sm:min-h-0">
-            <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-[#7c827d]">
-              JLG CORE
-            </p>
+              <button
+                type="button"
+                onClick={() => setShowCompleted((current) => !current)}
+                className="h-11 self-start rounded-full border border-black/15 bg-white/35 px-5 text-sm font-medium transition hover:bg-white/60 lg:self-auto"
+              >
+                {showCompleted ? "Hide completed" : "Show completed"}
+              </button>
+            </div>
+          </div>
 
-            <p className="max-w-[220px] text-xl font-medium leading-tight tracking-[-0.03em] text-[#59635e]">
-              Built with purpose.
-              <br />
-              Connected by design.
-            </p>
+          <div className="bg-[#fbf8f2]/70 p-5 sm:p-8">
+            <form
+              onSubmit={addMasterTask}
+              className="flex flex-col gap-2 sm:flex-row"
+            >
+              <input
+                type="text"
+                value={masterTask}
+                onChange={(event) => setMasterTask(event.target.value)}
+                placeholder="Add a general task"
+                className="h-12 flex-1 rounded-[16px] border border-[#d8d1c5] bg-white/80 px-4 text-sm outline-none transition placeholder:text-[#959c97] focus:border-[#87968e] focus:ring-4 focus:ring-[#87968e]/10"
+              />
+
+              <button
+                type="submit"
+                disabled={!masterTask.trim()}
+                className="h-12 rounded-[16px] bg-[#26322c] px-6 text-sm font-medium text-white transition hover:bg-[#34423b] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Add task
+              </button>
+            </form>
+
+            <div className="mt-5 grid gap-2 lg:grid-cols-2">
+              {visibleMasterTasks.length > 0 ? (
+                visibleMasterTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="group flex items-center gap-3 rounded-[18px] border border-[#ded8cd] bg-white/70 px-4 py-3.5 transition hover:bg-white"
+                  >
+                    <TaskCheckbox
+                      completed={task.completed}
+                      onClick={() => toggleTask(task.id)}
+                    />
+
+                    <div className="min-w-0 flex-1">
+                      <p className="mb-1 text-[9px] font-medium uppercase tracking-[0.2em] text-[#89918d]">
+                        {getCategoryName(task.categoryId)}
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => toggleTask(task.id)}
+                        className={`w-full text-left text-sm leading-5 ${
+                          task.completed
+                            ? "text-[#89918d] line-through"
+                            : "text-[#344039]"
+                        }`}
+                      >
+                        {task.text}
+                      </button>
+                    </div>
+
+                    <DeleteButton
+                      onClick={() => deleteTask(task.id)}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-[22px] border border-dashed border-[#cec7bb] bg-white/30 px-6 py-16 text-center lg:col-span-2">
+                  <p className="text-lg font-medium tracking-[-0.025em]">
+                    Nothing here yet
+                  </p>
+
+                  <p className="mt-1 text-sm text-[#77817b]">
+                    Add a general task or add one inside a project card.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {completedTaskCount > 0 && (
+              <div className="mt-5 flex justify-end">
+                <button
+                  type="button"
+                  onClick={clearCompletedTasks}
+                  className="text-xs font-medium text-[#737d77] underline decoration-[#aeb5b1] underline-offset-4 transition hover:text-[#26322c]"
+                >
+                  Clear all completed tasks
+                </button>
+              </div>
+            )}
           </div>
         </section>
+
+        <footer className="py-7 text-center">
+          <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#929a95]">
+            Built with purpose. Connected by design.
+          </p>
+        </footer>
       </div>
     </main>
+  );
+}
+
+function ProjectCard({
+  category,
+  tasks,
+  newTask,
+  onNewTaskChange,
+  onAddTask,
+  onToggleTask,
+  onDeleteTask,
+}: {
+  category: Category;
+  tasks: Task[];
+  newTask: string;
+  onNewTaskChange: (value: string) => void;
+  onAddTask: (event: FormEvent<HTMLFormElement>) => void;
+  onToggleTask: (taskId: string) => void;
+  onDeleteTask: (taskId: string) => void;
+}) {
+  const openTasks = tasks.filter((task) => !task.completed).length;
+
+  return (
+    <article
+      className={`relative flex min-h-[270px] flex-col overflow-hidden rounded-[26px] border p-5 ${
+        category.className
+      } ${category.featured ? "lg:col-span-2" : ""}`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-[#66736c]">
+            {category.label}
+          </p>
+
+          {openTasks > 0 && (
+            <p className="mt-2 text-xs text-[#748079]">
+              {openTasks} open {openTasks === 1 ? "task" : "tasks"}
+            </p>
+          )}
+        </div>
+
+        {category.url && (
+          <a
+            href={category.url}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Open ${category.name}`}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#506058]/25 bg-white/30 text-base transition duration-300 hover:rotate-45 hover:bg-[#26322c] hover:text-white"
+          >
+            ↗
+          </a>
+        )}
+      </div>
+
+      <div className="mt-16">
+        <h2
+          className={`font-medium leading-none tracking-[-0.045em] ${
+            category.featured
+              ? "text-4xl sm:text-5xl"
+              : "text-3xl sm:text-[2rem]"
+          }`}
+        >
+          {category.name}
+        </h2>
+
+        {category.displayUrl && (
+          <p className="mt-3 text-xs text-[#68736d]">
+            {category.displayUrl}
+          </p>
+        )}
+      </div>
+
+      <div className="mt-6 border-t border-black/10 pt-4">
+        <form
+          onSubmit={onAddTask}
+          className="flex items-center gap-2"
+        >
+          <input
+            type="text"
+            value={newTask}
+            onChange={(event) => onNewTaskChange(event.target.value)}
+            placeholder="Add a task"
+            className="h-10 min-w-0 flex-1 rounded-[13px] border border-black/10 bg-white/45 px-3 text-xs outline-none transition placeholder:text-[#7d8781] focus:border-black/20 focus:bg-white/70"
+          />
+
+          <button
+            type="submit"
+            disabled={!newTask.trim()}
+            aria-label={`Add task to ${category.name}`}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-[#26322c] text-lg text-white transition hover:bg-[#34423b] disabled:cursor-not-allowed disabled:opacity-35"
+          >
+            +
+          </button>
+        </form>
+
+        <div className="mt-3 space-y-2">
+          {tasks.map((task) => (
+            <div
+              key={task.id}
+              className="group flex items-center gap-2 rounded-[13px] border border-black/10 bg-white/35 px-3 py-2.5 transition hover:bg-white/55"
+            >
+              <TaskCheckbox
+                completed={task.completed}
+                onClick={() => onToggleTask(task.id)}
+                small
+              />
+
+              <button
+                type="button"
+                onClick={() => onToggleTask(task.id)}
+                className={`min-w-0 flex-1 text-left text-xs leading-5 ${
+                  task.completed
+                    ? "text-[#7f8983] line-through"
+                    : "text-[#3d4942]"
+                }`}
+              >
+                {task.text}
+              </button>
+
+              <DeleteButton
+                onClick={() => onDeleteTask(task.id)}
+                small
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function TaskCheckbox({
+  completed,
+  onClick,
+  small = false,
+}: {
+  completed: boolean;
+  onClick: () => void;
+  small?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={
+        completed
+          ? "Mark task as incomplete"
+          : "Mark task as complete"
+      }
+      className={`flex shrink-0 items-center justify-center rounded-full border transition ${
+        small ? "h-5 w-5" : "h-6 w-6"
+      } ${
+        completed
+          ? "border-[#34423b] bg-[#34423b] text-white"
+          : "border-[#8e9993] bg-white/35 hover:border-[#34423b]"
+      }`}
+    >
+      {completed && (
+        <span
+          className={small ? "text-[9px]" : "text-xs"}
+          aria-hidden="true"
+        >
+          ✓
+        </span>
+      )}
+    </button>
+  );
+}
+
+function DeleteButton({
+  onClick,
+  small = false,
+}: {
+  onClick: () => void;
+  small?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Delete task"
+      className={`shrink-0 items-center justify-center rounded-full text-[#7f8983] transition hover:bg-white/55 hover:text-[#26322c] sm:opacity-0 sm:group-hover:opacity-100 ${
+        small ? "flex h-6 w-6 text-sm" : "flex h-8 w-8 text-base"
+      }`}
+    >
+      ×
+    </button>
   );
 }
