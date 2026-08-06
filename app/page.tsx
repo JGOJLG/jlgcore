@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 type Category = {
   id: string;
@@ -17,6 +18,7 @@ type Task = {
   categoryId: string;
   text: string;
   completed: boolean;
+  position: number;
 };
 
 const categories: Category[] = [
@@ -89,85 +91,164 @@ const starterTasks: Task[] = [
     categoryId: "jgo-hire",
     text: "Finish the JGO Hire client timeline",
     completed: false,
+    position: 0,
   },
   {
     id: "task-2",
     categoryId: "jgo-hire",
     text: "Add Leads to the main dashboard navigation",
     completed: false,
+    position: 1,
   },
   {
     id: "task-3",
     categoryId: "jthc",
     text: "Redesign the public Articles page",
     completed: false,
+    position: 2,
   },
   {
     id: "task-4",
     categoryId: "jthc",
     text: "Finish the shared Media Library",
     completed: false,
+    position: 3,
   },
   {
     id: "task-5",
     categoryId: "jthc",
     text: "Build the Document Library",
     completed: false,
+    position: 4,
   },
   {
     id: "task-6",
     categoryId: "laif",
     text: "Continue building out the Money section",
     completed: false,
+    position: 5,
   },
   {
     id: "task-7",
     categoryId: "devices",
     text: "List every laptop, phone, tablet, and monitor",
     completed: false,
+    position: 6,
   },
   {
     id: "task-8",
     categoryId: "devices",
     text: "Document which projects are on each device",
     completed: false,
+    position: 7,
   },
   {
     id: "task-9",
     categoryId: "jlg-core",
     text: "Build the JLG Core master dashboard",
     completed: false,
-  },
+    position: 8,
+  }
 ];
 
-const STORAGE_KEY = "jlg-core-tasks";
-
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>(starterTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [newTasks, setNewTasks] = useState<Record<string, string>>({});
   const [masterTask, setMasterTask] = useState("");
   const [showCompleted, setShowCompleted] = useState(true);
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    const savedTasks = window.localStorage.getItem(STORAGE_KEY);
+    loadTasks();
+  }, []);
 
-    if (savedTasks) {
+  async function loadTasks() {
+    setIsLoading(true);
+    setErrorMessage("");
+
+    const { data, error } = await supabase
+      .from("jlg_core_tasks")
+      .select("id, category_id, text, completed, position")
+      .order("position", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Unable to load JLG Core tasks:", error);
+      setErrorMessage(
+        "JLG Core could not load your tasks. Make sure the Supabase SQL was run.",
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    if ((data ?? []).length > 0) {
+      setTasks(
+        (data ?? []).map((task) => ({
+          id: task.id,
+          categoryId: task.category_id,
+          text: task.text,
+          completed: task.completed ?? false,
+          position: task.position ?? 0,
+        })),
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    const savedLocalTasks = window.localStorage.getItem("jlg-core-tasks");
+
+    let tasksToSeed = starterTasks;
+
+    if (savedLocalTasks) {
       try {
-        setTasks(JSON.parse(savedTasks) as Task[]);
+        const parsedTasks = JSON.parse(savedLocalTasks) as Array<
+          Omit<Task, "position"> & { position?: number }
+        >;
+
+        if (parsedTasks.length > 0) {
+          tasksToSeed = parsedTasks.map((task, index) => ({
+            ...task,
+            position: task.position ?? index,
+          }));
+        }
       } catch {
-        setTasks(starterTasks);
+        tasksToSeed = starterTasks;
       }
     }
 
-    setHasLoaded(true);
-  }, []);
+    const { data: insertedTasks, error: insertError } = await supabase
+      .from("jlg_core_tasks")
+      .insert(
+        tasksToSeed.map((task, index) => ({
+          category_id: task.categoryId,
+          text: task.text,
+          completed: task.completed,
+          position: task.position ?? index,
+        })),
+      )
+      .select("id, category_id, text, completed, position");
 
-  useEffect(() => {
-    if (!hasLoaded) return;
+    if (insertError) {
+      console.error("Unable to seed JLG Core tasks:", insertError);
+      setErrorMessage("JLG Core could not back up your starter tasks.");
+      setIsLoading(false);
+      return;
+    }
 
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  }, [tasks, hasLoaded]);
+    setTasks(
+      (insertedTasks ?? []).map((task) => ({
+        id: task.id,
+        categoryId: task.category_id,
+        text: task.text,
+        completed: task.completed ?? false,
+        position: task.position ?? 0,
+      })),
+    );
+
+    window.localStorage.removeItem("jlg-core-tasks");
+    setIsLoading(false);
+  }
 
   const visibleMasterTasks = useMemo(() => {
     return tasks.filter((task) => showCompleted || !task.completed);
@@ -176,7 +257,7 @@ export default function Home() {
   const openTaskCount = tasks.filter((task) => !task.completed).length;
   const completedTaskCount = tasks.filter((task) => task.completed).length;
 
-  function addCategoryTask(
+  async function addCategoryTask(
     event: FormEvent<HTMLFormElement>,
     categoryId: string,
   ) {
@@ -186,11 +267,29 @@ export default function Home() {
 
     if (!taskText) return;
 
+    const { data, error } = await supabase
+      .from("jlg_core_tasks")
+      .insert({
+        category_id: categoryId,
+        text: taskText,
+        completed: false,
+        position: tasks.length,
+      })
+      .select("id, category_id, text, completed, position")
+      .single();
+
+    if (error || !data) {
+      console.error("Unable to add JLG Core task:", error);
+      setErrorMessage("JLG Core could not save that task.");
+      return;
+    }
+
     const task: Task = {
-      id: crypto.randomUUID(),
-      categoryId,
-      text: taskText,
-      completed: false,
+      id: data.id,
+      categoryId: data.category_id,
+      text: data.text,
+      completed: data.completed ?? false,
+      position: data.position ?? tasks.length,
     };
 
     setTasks((currentTasks) => [task, ...currentTasks]);
@@ -201,44 +300,110 @@ export default function Home() {
     }));
   }
 
-  function addMasterTask(event: FormEvent<HTMLFormElement>) {
+  async function addMasterTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const taskText = masterTask.trim();
 
     if (!taskText) return;
 
+    const { data, error } = await supabase
+      .from("jlg_core_tasks")
+      .insert({
+        category_id: "to-do",
+        text: taskText,
+        completed: false,
+        position: tasks.length,
+      })
+      .select("id, category_id, text, completed, position")
+      .single();
+
+    if (error || !data) {
+      console.error("Unable to add general JLG Core task:", error);
+      setErrorMessage("JLG Core could not save that task.");
+      return;
+    }
+
     const task: Task = {
-      id: crypto.randomUUID(),
-      categoryId: "to-do",
-      text: taskText,
-      completed: false,
+      id: data.id,
+      categoryId: data.category_id,
+      text: data.text,
+      completed: data.completed ?? false,
+      position: data.position ?? tasks.length,
     };
 
     setTasks((currentTasks) => [task, ...currentTasks]);
     setMasterTask("");
   }
 
-  function toggleTask(taskId: string) {
+  async function toggleTask(taskId: string) {
+    const selectedTask = tasks.find((task) => task.id === taskId);
+
+    if (!selectedTask) return;
+
+    const { data, error } = await supabase
+      .from("jlg_core_tasks")
+      .update({ completed: !selectedTask.completed })
+      .eq("id", taskId)
+      .select("id, category_id, text, completed, position")
+      .single();
+
+    if (error || !data) {
+      console.error("Unable to update JLG Core task:", error);
+      setErrorMessage("JLG Core could not update that task.");
+      return;
+    }
+
     setTasks((currentTasks) =>
       currentTasks.map((task) =>
         task.id === taskId
           ? {
-              ...task,
-              completed: !task.completed,
+              id: data.id,
+              categoryId: data.category_id,
+              text: data.text,
+              completed: data.completed ?? false,
+              position: data.position ?? task.position,
             }
           : task,
       ),
     );
   }
 
-  function deleteTask(taskId: string) {
+  async function deleteTask(taskId: string) {
+    const { error } = await supabase
+      .from("jlg_core_tasks")
+      .delete()
+      .eq("id", taskId);
+
+    if (error) {
+      console.error("Unable to delete JLG Core task:", error);
+      setErrorMessage("JLG Core could not delete that task.");
+      return;
+    }
+
     setTasks((currentTasks) =>
       currentTasks.filter((task) => task.id !== taskId),
     );
   }
 
-  function clearCompletedTasks() {
+  async function clearCompletedTasks() {
+    const completedIds = tasks
+      .filter((task) => task.completed)
+      .map((task) => task.id);
+
+    if (completedIds.length === 0) return;
+
+    const { error } = await supabase
+      .from("jlg_core_tasks")
+      .delete()
+      .in("id", completedIds);
+
+    if (error) {
+      console.error("Unable to clear completed JLG Core tasks:", error);
+      setErrorMessage("JLG Core could not clear completed tasks.");
+      return;
+    }
+
     setTasks((currentTasks) =>
       currentTasks.filter((task) => !task.completed),
     );
@@ -254,6 +419,14 @@ export default function Home() {
     return (
       categories.find((category) => category.id === categoryId)?.name ??
       "Other"
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f5f1e9] px-6 text-[#65716a]">
+        <p className="text-sm">Loading JLG Core...</p>
+      </main>
     );
   }
 
@@ -293,6 +466,12 @@ export default function Home() {
             </div>
           </div>
         </header>
+
+        {errorMessage && (
+          <div className="mb-4 rounded-[18px] border border-[#e6d2d2] bg-[#fff7f7] px-4 py-3 text-sm text-[#955f5f]">
+            {errorMessage}
+          </div>
+        )}
 
         <section className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => (
