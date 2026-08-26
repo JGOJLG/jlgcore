@@ -1,10 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  "https://odejfklpijxktvabhjms.supabase.co";
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Missing JLG Core Supabase environment variables.");
-}
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  "sb_publishable_oe4c1PNAThAMLaFJwAx9aA_x1gBB3wt";
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
