@@ -21,6 +21,13 @@ type Task = {
   position: number;
 };
 
+type SmallBuild = {
+  name: string;
+  label: string;
+  url: string;
+  displayUrl: string;
+};
+
 const categories: Category[] = [
   { id: "jgo-hire", name: "JGO Hire", label: "Career Coaching", url: "https://jgohire.com", displayUrl: "jgohire.com", className: "bg-[#dce7df] border-[#c6d5ca]", featured: true },
   { id: "jlg-collective", name: "JLG Collective", label: "Creative Collective", url: "https://jlgcollective.com", displayUrl: "jlgcollective.com", className: "bg-[#f0dfd2] border-[#e1cbbb]" },
@@ -28,8 +35,19 @@ const categories: Category[] = [
   { id: "laif", name: "LAIF", label: "Personal OS", url: "https://laif.jlgcore.com", displayUrl: "laif.jlgcore.com", className: "bg-[#eee8cf] border-[#ddd5b7]" },
   { id: "jlg-core", name: "JLG Core", label: "Central Hub", url: "https://jlgcore.com", displayUrl: "jlgcore.com", className: "bg-[#e5dfee] border-[#d5cce2]" },
   { id: "jthc", name: "JTHC", label: "Health + Wellness", url: "https://admin.jillthehealthcoach.com", displayUrl: "admin.jillthehealthcoach.com", className: "bg-[#f1dfe0] border-[#e2c9cb]" },
-  { id: "jlg-creative", name: "JLG Creative", label: "Creative Studio", className: "bg-[#eadfd7] border-[#dbc9bd]" },
+  { id: "jlg-creative", name: "JLG Creative", label: "Content Calendar", url: "https://laif.jlgcore.com/jlg", displayUrl: "laif.jlgcore.com/jlg", className: "bg-[#eadfd7] border-[#dbc9bd]" },
   { id: "devices", name: "Devices", label: "Technology", className: "bg-[#e1e8e8] border-[#cbd7d7]" },
+];
+
+const smallBuilds: SmallBuild[] = [
+  { name: "Kirstin Wedding Hub", label: "Wedding Planning", url: "https://laif.jlgcore.com/kirstin", displayUrl: "laif.jlgcore.com/kirstin" },
+  { name: "Letters to Kirstin", label: "Wedding Letters", url: "https://letterstokirstin.com", displayUrl: "letterstokirstin.com" },
+  { name: "Kirstin Admin", label: "Letters Admin", url: "https://letterstokirstin.com/admin", displayUrl: "letterstokirstin.com/admin" },
+  { name: "Gemma Wedding Hub", label: "Wedding Planning", url: "https://laif.jlgcore.com/gemma", displayUrl: "laif.jlgcore.com/gemma" },
+  { name: "JGO OS", label: "Coaching + Client Portal", url: "https://portal.jgohire.com", displayUrl: "portal.jgohire.com" },
+  { name: "JTS", label: "Applicant Tracking System", url: "https://jts-seven.vercel.app", displayUrl: "jts-seven.vercel.app" },
+  { name: "JTHC Public Site", label: "Health + Wellness", url: "https://jillthehealthcoach.com", displayUrl: "jillthehealthcoach.com" },
+  { name: "JTHC Staging", label: "Website Staging", url: "https://new.jillthehealthcoach.com", displayUrl: "new.jillthehealthcoach.com" },
 ];
 
 const starterTasks: Omit<Task, "id">[] = [
@@ -271,6 +289,29 @@ export default function Home() {
             {completedTaskCount > 0 && <div className="mt-5 flex justify-end"><button type="button" onClick={clearCompletedTasks} className="text-xs font-medium text-[#737d77] underline decoration-[#aeb5b1] underline-offset-4 transition hover:text-[#26322c]">Clear all completed tasks</button></div>}
           </div>
         </section>
+
+        <section className="mt-4 rounded-[30px] border border-[#ded6c8] bg-[#fbf8f2] p-5 sm:p-7">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#7c8881]">Everything I&apos;ve Built</p>
+              <h2 className="mt-2 text-3xl font-medium tracking-[-0.04em]">Sites + Side Builds</h2>
+            </div>
+            <p className="max-w-md text-xs leading-5 text-[#77817b] sm:text-right">A quick launchpad for the smaller sites, wedding builds, internal tools, and one-off projects living across the JLG ecosystem.</p>
+          </div>
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {smallBuilds.map((build) => (
+              <a key={build.url} href={build.url} target="_blank" rel="noreferrer" className="group flex min-h-[104px] items-center justify-between gap-4 rounded-[18px] border border-[#ddd6ca] bg-white/65 px-4 py-4 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm">
+                <div className="min-w-0">
+                  <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-[#89918d]">{build.label}</p>
+                  <p className="mt-1.5 text-sm font-semibold text-[#344039]">{build.name}</p>
+                  <p className="mt-1 truncate text-[11px] text-[#7c8881]">{build.displayUrl}</p>
+                </div>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#d8d1c5] bg-[#f5f1e9] text-sm text-[#68736d] transition group-hover:bg-[#26322c] group-hover:text-white">↗</span>
+              </a>
+            ))}
+          </div>
+        </section>
+
         <footer className="py-7 text-center"><p className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#929a95]">Built with purpose. Connected by design.</p></footer>
       </div>
     </main>
