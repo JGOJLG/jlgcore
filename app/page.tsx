@@ -14,7 +14,7 @@ const categories: Category[] = [
   { id:"laif", name:"LAIF", label:"Personal OS", url:"https://laif.jlgcore.com", displayUrl:"laif.jlgcore.com", className:"bg-[#eee8cf] border-[#ddd5b7]" },
   { id:"jlg-core", name:"JLG Core", label:"Central Hub", url:"https://jlgcore.com", displayUrl:"jlgcore.com", className:"bg-[#e5dfee] border-[#d5cce2]" },
   { id:"jthc", name:"JTHC", label:"Health + Wellness", url:"https://admin.jillthehealthcoach.com", displayUrl:"admin.jillthehealthcoach.com", className:"bg-[#f1dfe0] border-[#e2c9cb]" },
-  { id:"jlg-creative", name:"JLG Creative", label:"Content Calendar", url:"https://laif.jlgcore.com/jlg", displayUrl:"laif.jlgcore.com/jlg", className:"bg-[#eadfd7] border-[#dbc9bd]" },
+  { id:"jlg-creative", name:"JLG Creative Studio", label:"Social Content Studio", url:"https://studio.jlgcollective.com", displayUrl:"studio.jlgcollective.com", className:"bg-[#eadfd7] border-[#dbc9bd]" },
   { id:"devices", name:"Devices", label:"Technology", className:"bg-[#e1e8e8] border-[#cbd7d7]" },
 ];
 const smallBuilds: SmallBuild[] = [
