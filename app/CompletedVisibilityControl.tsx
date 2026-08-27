@@ -13,6 +13,13 @@ function applyCompletedVisibility(showCompleted: boolean) {
     const row = button.closest<HTMLDivElement>("div.group.flex");
     if (row) row.style.display = showCompleted ? "" : "none";
   });
+
+  Array.from(document.querySelectorAll<HTMLButtonElement>("button")).forEach((button) => {
+    const label = button.textContent?.trim();
+    if (label === "Hide completed" || label === "Show completed") {
+      if (!button.dataset.globalCompletedControl) button.style.display = "none";
+    }
+  });
 }
 
 export default function CompletedVisibilityControl() {
@@ -57,6 +64,7 @@ export default function CompletedVisibilityControl() {
   return (
     <button
       type="button"
+      data-global-completed-control="true"
       onClick={toggle}
       className="fixed bottom-5 right-5 z-[100] rounded-full border border-[#d8d1c5] bg-[#fbf8f2]/95 px-4 py-2.5 text-xs font-semibold text-[#39463f] shadow-lg backdrop-blur hover:bg-white"
       aria-pressed={showCompleted}
