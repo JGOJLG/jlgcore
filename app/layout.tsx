@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import CompletedVisibilityControl from "./CompletedVisibilityControl";
 import PasswordGate from "./PasswordGate";
-import ShelfLaifSection from "./ShelfLaifSection";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,7 +30,6 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ShelfLaifSection />
         {children}
         <PasswordGate />
         <CompletedVisibilityControl />
