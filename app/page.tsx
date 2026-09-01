@@ -9,6 +9,7 @@ type SmallBuild = { name:string; label:string; url:string; displayUrl:string; };
 const categories: Category[] = [
   { id:"jgo-hire", name:"JGO Hire", label:"Career Coaching", url:"https://jgohire.com", displayUrl:"jgohire.com", className:"bg-[#dce7df] border-[#c6d5ca]", featured:true },
   { id:"shelflaif", name:"ShelfLAIF", label:"Social Reading", url:"https://shelflaif.jlgcore.com", displayUrl:"shelflaif.jlgcore.com", className:"bg-[#e2e8dc] border-[#cbd6c3]" },
+  { id:"literal-trash", name:"Literal Trash", label:"Book Club", url:"https://literaltrash.jlgcore.com", displayUrl:"literaltrash.jlgcore.com", className:"bg-[#dfeafb] border-[#c9dbf4]" },
   { id:"jlg-collective", name:"JLG Collective", label:"Creative Collective", url:"https://github.com/JGOJLG/jlg-collective", displayUrl:"JLG Collective build", className:"bg-[#f0dfd2] border-[#e1cbbb]" },
   { id:"vidley", name:"Vidley Digital", label:"Digital Studio", url:"https://vidleydigital.com", displayUrl:"vidleydigital.com", adminUrl:"https://admin.vidleydigital.com", className:"bg-[#dce8ea] border-[#c7d9dc]" },
   { id:"laif", name:"LAIF", label:"Personal OS", url:"https://laif.jlgcore.com", displayUrl:"laif.jlgcore.com", className:"bg-[#eee8cf] border-[#ddd5b7]" },
