@@ -17,6 +17,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "JLG Core",
   description: "JLG Core",
+  applicationName: "JLG Core",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "JLG Core",
+    statusBarStyle: "default",
+  },
 };
 
 export default function RootLayout({
