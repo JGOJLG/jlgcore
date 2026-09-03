@@ -29,6 +29,7 @@ const smallBuilds: SmallBuild[] = [
   { name:"JTS", label:"Applicant Tracking System", url:"https://jts-seven.vercel.app", displayUrl:"jts-seven.vercel.app" },
   { name:"JTHC Public Site", label:"Health + Wellness", url:"https://jillthehealthcoach.com", displayUrl:"jillthehealthcoach.com" },
   { name:"JTHC Staging", label:"Website Staging", url:"https://new.jillthehealthcoach.com", displayUrl:"new.jillthehealthcoach.com" },
+  { name:"DWTS Fantasy", label:"Fantasy Elimination Game", url:"https://dwts.jlgcore.com", displayUrl:"dwts.jlgcore.com" },
 ];
 const starterTasks: Omit<Task,"id">[] = [
   {categoryId:"jgo-hire",text:"Finish the JGO Hire client timeline",completed:false,position:0},{categoryId:"jgo-hire",text:"Add Leads to the main dashboard navigation",completed:false,position:1},{categoryId:"jthc",text:"Redesign the public Articles page",completed:false,position:2},{categoryId:"jthc",text:"Finish the shared Media Library",completed:false,position:3},{categoryId:"jthc",text:"Build the Document Library",completed:false,position:4},{categoryId:"laif",text:"Continue building out the Money section",completed:false,position:5},{categoryId:"devices",text:"List every laptop, phone, tablet, and monitor",completed:false,position:6},{categoryId:"devices",text:"Document which projects are on each device",completed:false,position:7},{categoryId:"jlg-core",text:"Build the JLG Core master dashboard",completed:false,position:8},
