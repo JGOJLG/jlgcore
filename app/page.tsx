@@ -20,6 +20,7 @@ const categories: Category[] = [
   { id:"devices", name:"Devices", label:"Technology", className:"bg-[#e1e8e8] border-[#cbd7d7]" },
 ];
 const smallBuilds: SmallBuild[] = [
+  { name:"Rach Studio", label:"Creator Finance + Campaign Tracker", url:"https://rach.jlgcore.com", displayUrl:"rach.jlgcore.com" },
   { name:"JLG Collective", label:"Creative Collective", url:"https://github.com/JGOJLG/jlg-collective", displayUrl:"Separate Next.js build" },
   { name:"Kirstin Wedding Hub", label:"Wedding Planning", url:"https://laif.jlgcore.com/kirstin", displayUrl:"laif.jlgcore.com/kirstin" },
   { name:"Letters to Kirstin", label:"Wedding Letters", url:"https://letterstokirstin.com", displayUrl:"letterstokirstin.com" },
