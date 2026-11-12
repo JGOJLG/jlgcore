@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Private dashboard for the JLG ecosystem.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f5f1e9",
-    theme_color: "#f5f1e9",
+    background_color: "#f3efe7",
+    theme_color: "#f3efe7",
     icons: [
       {
         src: "/icon.png",

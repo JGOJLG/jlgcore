@@ -40,8 +40,11 @@ export default function AuthGate({ children }: { children: ReactNode }) {
 
   if (!ready) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f5f1e9] text-sm text-[#65716a]">
-        Loading JLG Core…
+      <main className="flex min-h-screen items-center justify-center bg-paper">
+        <div className="flex items-center gap-3 text-sm text-muted">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-brand" />
+          Loading JLG Core
+        </div>
       </main>
     );
   }
@@ -52,6 +55,20 @@ export default function AuthGate({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{ userId, signOut: async () => void (await supabase.auth.signOut()) }}>
       {children}
     </AuthContext.Provider>
+  );
+}
+
+export function Mark({ size = 36 }: { size?: number }) {
+  return (
+    <span
+      aria-hidden
+      style={{ width: size, height: size }}
+      className="inline-flex shrink-0 items-center justify-center rounded-[30%] bg-brand font-display text-brand-ink"
+    >
+      <span style={{ fontSize: size * 0.56 }} className="leading-none">
+        J
+      </span>
+    </span>
   );
 }
 
@@ -84,21 +101,32 @@ function SignIn() {
   }
 
   const input =
-    "mt-2 h-12 w-full rounded-2xl border border-[#d8d1c5] bg-white px-4 text-sm outline-none focus:border-[#8d988f]";
+    "mt-2 h-12 w-full rounded-xl border border-line bg-raised px-4 text-sm text-ink outline-none transition focus:border-line-strong focus:ring-4 focus:ring-[color-mix(in_srgb,var(--brand)_10%,transparent)]";
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f5f1e9] px-5 py-10 text-[#26322c]">
-      <div className="w-full max-w-md rounded-[30px] border border-[#ded6c8] bg-[#fbf8f2] p-7 shadow-sm sm:p-9">
-        <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-[#7c8881]">The center of everything</p>
-        <h1 className="mt-4 text-5xl font-semibold tracking-[-0.06em]">JLG CORE</h1>
-        <p className="mt-4 text-sm leading-6 text-[#6d7771]">Private dashboard. Sign in with your LAIF account.</p>
-        <form onSubmit={submit} className="mt-7 space-y-4">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-paper px-5 py-10">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
+        style={{ background: "radial-gradient(closest-side, color-mix(in srgb, #c07a4a 22%, transparent), transparent)" }}
+      />
+      <div className="relative w-full max-w-[400px]">
+        <div className="flex items-center gap-3">
+          <Mark />
+          <span className="text-sm font-medium tracking-tight">JLG Core</span>
+        </div>
+        <h1 className="mt-10 font-display text-6xl leading-[0.95] tracking-tight">
+          Everything,
+          <br />
+          <span className="italic text-muted">in one place.</span>
+        </h1>
+        <form onSubmit={submit} className="mt-10 space-y-4">
           <label className="block">
-            <span className="text-xs font-medium text-[#66716b]">Email</span>
+            <span className="text-xs font-medium text-muted">Email</span>
             <input type="email" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} className={input} />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-[#66716b]">Password</span>
+            <span className="text-xs font-medium text-muted">Password</span>
             <input
               type="password"
               required
@@ -110,14 +138,18 @@ function SignIn() {
             />
           </label>
           {error && (
-            <p role="alert" className="rounded-2xl border border-[#e6d2d2] bg-[#fff7f7] px-4 py-3 text-sm text-[#955f5f]">
+            <p role="alert" className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
               {error}
             </p>
           )}
-          <button disabled={submitting} className="h-12 w-full rounded-2xl bg-[#26322c] text-sm font-medium text-white disabled:opacity-60">
+          <button
+            disabled={submitting}
+            className="h-12 w-full rounded-xl bg-brand text-sm font-medium text-brand-ink transition hover:opacity-90 disabled:opacity-60"
+          >
             {submitting ? "Signing in…" : "Enter JLG Core"}
           </button>
         </form>
+        <p className="mt-6 text-xs text-faint">Private dashboard · sign in with your LAIF account</p>
       </div>
     </main>
   );
