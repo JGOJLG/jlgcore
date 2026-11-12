@@ -3,12 +3,6 @@ import Link from "next/link";
 const tools = [
   { kind: "Website", name: "Vidley Digital", desc: "vidleydigital.com", url: "https://vidleydigital.com" },
   { kind: "Admin", name: "Vidley Admin", desc: "admin.vidleydigital.com", url: "https://admin.vidleydigital.com" },
-  {
-    kind: "Private tool",
-    name: "Coupon Manager",
-    desc: "Create, pause and delete Vidley coupon codes",
-    url: "https://jlg-collective-git-main-jgohire.vercel.app/vidley/coupons",
-  },
 ];
 
 export default function VidleyTools() {

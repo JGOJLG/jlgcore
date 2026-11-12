@@ -75,7 +75,7 @@ export const quickLinkGroups: QuickLinkGroup[] = [
     title: "Other builds",
     links: [
       { name: "Rach Studio", label: "Creator finance + campaigns", url: "https://rach.jlgcore.com", accent: "#c08a4a" },
-      { name: "JTS", label: "Applicant tracking", url: "https://jts-seven.vercel.app", accent: "#4f7a5f" },
+      { name: "JTS", label: "Applicant tracking", url: "https://jts.jlgcore.com", accent: "#4f7a5f" },
       { name: "DWTS Fantasy", label: "Fantasy elimination game", url: "https://dwts.jlgcore.com", accent: "#b5646c" },
     ],
   },
