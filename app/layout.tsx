@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import CompletedVisibilityControl from "./CompletedVisibilityControl";
-import PasswordGate from "./PasswordGate";
+import AuthGate from "./AuthGate";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "JLG Core",
-  description: "JLG Core",
+  description: "Private dashboard for the JLG ecosystem.",
+  robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false } },
   applicationName: "JLG Core",
   manifest: "/manifest.webmanifest",
   icons: {
@@ -42,9 +42,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {children}
-        <PasswordGate />
-        <CompletedVisibilityControl />
+        <AuthGate>{children}</AuthGate>
       </body>
     </html>
   );

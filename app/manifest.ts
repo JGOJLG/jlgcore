@@ -4,11 +4,11 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "JLG Core",
     short_name: "JLG Core",
-    description: "JLG Core",
+    description: "Private dashboard for the JLG ecosystem.",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#ffffff",
+    background_color: "#f5f1e9",
+    theme_color: "#f5f1e9",
     icons: [
       {
         src: "/icon.png",
